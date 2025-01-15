@@ -6,7 +6,7 @@ app = Flask(__name__)
 UPLOAD_FOLDER = './upload'  # โฟลเดอร์สำหรับเก็บไฟล์
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # สร้างโฟลเดอร์หากยังไม่มี
 
-@app.route('/ss' , method=['GET'])
+@app.route('/ss' , methods=['GET'])
 def home():
     return "Welcome to the upload service!"
 
