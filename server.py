@@ -1,18 +1,16 @@
-import os
 import cv2
 import numpy as np
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, Response
+from io import BytesIO
 
 app = Flask(__name__)
 
-UPLOAD_FOLDER = './upload'  # โฟลเดอร์สำหรับเก็บไฟล์
-PROCESSED_FOLDER = './processed'  # โฟลเดอร์สำหรับเก็บไฟล์ที่ประมวลผลแล้ว
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(PROCESSED_FOLDER, exist_ok=True)
+def process_image(image_data):
+    # อ่านภาพจาก BytesIO
+    np_image = np.frombuffer(image_data, np.uint8)
+    img = cv2.imdecode(np_image, cv2.IMREAD_COLOR)
 
-def process_image(file_path):
-    # อ่านภาพ
-    img = cv2.imread(file_path)
+    # สำเนาภาพต้นฉบับ
     img_original = img.copy()
 
     # แปลงภาพเป็น Grayscale และใช้ Bilateral Filter
@@ -44,13 +42,10 @@ def process_image(file_path):
         matrix = cv2.getPerspectiveTransform(input_points, converted_points)
         img_output = cv2.warpPerspective(img_original, matrix, (1920, 1080))
 
-        # บันทึกผลลัพธ์
-        processed_file_path = os.path.join(PROCESSED_FOLDER, "processed_image.jpg")
-        cv2.imwrite(processed_file_path, img_output)
-        return processed_file_path
+        return img_output
 
-    # ถ้าไม่พบ Contours
-    return None
+    # ถ้าไม่พบ Contours ส่งภาพต้นฉบับกลับไป
+    return img
 
 def biggest_contour(contours):
     biggest = np.array([])
@@ -65,26 +60,27 @@ def biggest_contour(contours):
                 max_area = area
     return biggest
 
-@app.route('/upload', methods=['POST'])
-def upload_image():
+@app.route('/process', methods=['POST'])
+def process():
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
+
     file = request.files['file']
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
 
-    # บันทึกไฟล์ในโฟลเดอร์ upload
-    original_filename = file.filename
-    original_file_path = os.path.join(UPLOAD_FOLDER, original_filename)
-    file.save(original_file_path)
+    # อ่านข้อมูลไฟล์ภาพ
+    image_data = file.read()
 
-    # ประมวลผลรูปภาพ
-    processed_file_path = process_image(original_file_path)
-    if processed_file_path:
-        # ส่งไฟล์ที่ประมวลผลกลับไปยัง Unity
-        return send_file(processed_file_path, mimetype='image/jpeg')
-    else:
-        return jsonify({"error": "Failed to process the image"}), 500
+    # ประมวลผลภาพ
+    processed_image = process_image(image_data)
+
+    # แปลงภาพเป็น BytesIO เพื่อตอบกลับ
+    _, buffer = cv2.imencode('.jpg', processed_image)
+    response = BytesIO(buffer)
+
+    # ส่งภาพกลับไป
+    return Response(response.getvalue(), mimetype='image/jpeg')
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
