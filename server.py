@@ -20,7 +20,14 @@ def upload_image():
 
     return jsonify({"message": "File saved successfully!", "file_path": file_path}), 200
 
-    
+        # เปลี่ยนชื่อหรือประมวลผลไฟล์
+    renamed_filename = f"processed_{original_filename}"
+    renamed_file_path = os.path.join(UPLOAD_FOLDER, renamed_filename)
+    os.rename(original_file_path, renamed_file_path)
+
+    # ส่งไฟล์กลับไปยัง Unity
+    return send_file(renamed_file_path, mimetype='image/jpeg')
+
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
