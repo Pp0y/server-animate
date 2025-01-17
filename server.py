@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import requests
 from flask import Flask, request, jsonify, send_file, Response
 from io import BytesIO
 
@@ -101,7 +102,7 @@ def projects():
     # แปลงภาพเป็น BytesIO เพื่อตอบกลับ
     _, buffer = cv2.imencode('.jpg', processed_image)
     # ส่งภาพไปยัง PHP server
-    php_url = "https://www.rcsaclub.com/animate_uploads/Plane/recive_plane_pic.php"
+    php_url = "https://rcsaclub.com/animate_uploads/Plane/recive_plane_pic.php"
     files = {'file': ('processed_image.jpg', buffer.tobytes(), 'image/jpeg')}
     response = requests.post(php_url, files=files)
 
