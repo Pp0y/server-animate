@@ -62,27 +62,6 @@ def biggest_contour(contours):
 
 @app.route('/process', methods=['POST'])
 def process():
-    # if 'file' not in request.files:
-    #     return jsonify({"error": "No file part"}), 400
-
-    # file = request.files['file']
-    # if file.filename == '':
-    #     return jsonify({"error": "No selected file"}), 400
-
-    # # อ่านข้อมูลไฟล์ภาพ
-    # image_data = file.read()
-
-    # # ประมวลผลภาพ
-    # processed_image = process_image(image_data)
-
-    # # แปลงภาพเป็น BytesIO เพื่อตอบกลับ
-    # _, buffer = cv2.imencode('.jpg', processed_image)
-    # response = BytesIO(buffer)
-
-    # # ส่งภาพกลับไป
-    # return Response(response.getvalue(), mimetype='image/jpeg')
-
-    
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
 
@@ -98,16 +77,10 @@ def process():
 
     # แปลงภาพเป็น BytesIO เพื่อตอบกลับ
     _, buffer = cv2.imencode('.jpg', processed_image)
-    # ส่งภาพไปยัง PHP server
-    php_url = "https://www.rcsaclub.com/animate_uploads/Plane/recive_plane_pic.php"
-    files = {'file': ('processed_image.jpg', buffer.tobytes(), 'image/jpeg')}
-    response = requests.post(php_url, files=files)
+    response = BytesIO(buffer)
 
-    # ตรวจสอบสถานะการส่ง
-    if response.status_code == 200:
-        return jsonify({"message": "File sent successfully", "php_response": response.text}), 200
-    else:
-        return jsonify({"error": "Failed to send file", "php_response": response.text}), 500
+    # ส่งภาพกลับไป
+    return Response(response.getvalue(), mimetype='image/jpeg')
 
 @app.route('/projects', methods=['POST'])
 def projects():
