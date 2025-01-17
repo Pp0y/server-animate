@@ -14,12 +14,12 @@ def biggest_contour(contours):
                 max_area = area
     return biggest
 
-img = cv2.imread('input/Bird.jpg')
+img = cv2.imread('input/PhotoFish2.jpg')
 img_original = img.copy()
 
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 gray = cv2.bilateralFilter(gray, 20, 30, 30)
-edged = cv2.Canny(gray, 10, 20)
+edged = cv2.Canny(gray, 50, 150)
 
 contours, heirarchy = cv2.findContours(edged.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 contours = sorted(contours, key=cv2.contourArea, reverse=True)[:1]
@@ -27,6 +27,13 @@ contours = sorted(contours, key=cv2.contourArea, reverse=True)[:1]
 biggest = biggest_contour(contours)
 
 cv2.drawContours(img, [biggest], -1, (0, 255, 0), 3)
+
+if biggest.size == 0:
+    print("No valid contour found.")
+    cv2.imshow("Original Image", img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    exit()
 
 points = biggest.reshape(4, 2)
 input_points = np.zeros((4, 2), dtype="float32")
@@ -50,6 +57,5 @@ edged = np.stack((edged,) * 3, axis=-1)
 img_hor = np.hstack((edged, img))
 cv2.imshow("Contour detection", img_hor)
 cv2.imshow("Warped perspective", img_output)
-# cv2.imwrite("Result.png", img_output)
-
+cv2.imwrite("Result.png", img_output)
 cv2.waitKey(0)
