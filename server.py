@@ -45,7 +45,7 @@ def process_image(image_data):
 
         return img_output
 
-    # ถ้าไม่พบ Contours ส่งภาพต้นฉบับกลับไป
+    # ถ้าไม่พบ Contours ส่งภาพต้นฉบับกลับไป ส่งกลับไปนะ
     return img
 
 def biggest_contour(contours):
