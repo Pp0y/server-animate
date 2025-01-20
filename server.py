@@ -106,7 +106,9 @@ def projects():
     files = {'file': ('processed_image.jpg', buffer.tobytes(), 'image/jpeg')}
     try:
         response = requests.post(php_url, files=files)
-        response.raise_for_status()  # เพิ่มเพื่อเช็คว่าการส่งสำเร็จ
+        headers = {"User-Agent": "MyPythonClient/1.0"}
+        response = requests.post(php_url, files=files, headers=headers)
+        print(response.status_code, response.text)
     except requests.RequestException as e:
         return jsonify({"error": f"Failed to send file: {str(e)}"}), 500
 
