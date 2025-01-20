@@ -124,11 +124,11 @@ def projects():
     # except requests.RequestException as e:
     #     return jsonify({"error": f"Failed to send file: {str(e)}"}), 500
 
-    # # ตรวจสอบสถานะการส่ง
-    # if response.status_code == 200:
-    #     return jsonify({"message": "File sent successfully", "php_response": response.text}), 200
-    # else:
-    #     return jsonify({"error": "Failed to send file", "php_response": response.text}), 500
+    # ตรวจสอบสถานะการส่ง
+    if response.status_code == 200:
+        return jsonify({"message": "File sent successfully", "php_response": response.text}), 200
+    else:
+        return jsonify({"error": "Failed to send file", "php_response": response.text}), 500
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
