@@ -85,7 +85,6 @@ def process():
 
 @app.route('/projects', methods=['POST'])
 def projects():
-
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
 
@@ -101,10 +100,15 @@ def projects():
 
     # แปลงภาพเป็น BytesIO เพื่อตอบกลับ
     _, buffer = cv2.imencode('.jpg', processed_image)
+
     # ส่งภาพไปยัง PHP server
     php_url = "https://rcsaclub.com/animate_uploads/Plane/recive_plane_pic.php"
     files = {'file': ('processed_image.jpg', buffer.tobytes(), 'image/jpeg')}
-    response = requests.post(php_url, files=files)
+    try:
+        response = requests.post(php_url, files=files)
+        response.raise_for_status()  # เพิ่มเพื่อเช็คว่าการส่งสำเร็จ
+    except requests.RequestException as e:
+        return jsonify({"error": f"Failed to send file: {str(e)}"}), 500
 
     # ตรวจสอบสถานะการส่ง
     if response.status_code == 200:
