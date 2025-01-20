@@ -98,25 +98,37 @@ def projects():
     # ประมวลผลภาพ
     processed_image = process_image(image_data)
 
-    # แปลงภาพเป็น BytesIO เพื่อตอบกลับ
-    _, buffer = cv2.imencode('.jpg', processed_image)
-
-    # ส่งภาพไปยัง PHP server
     php_url = "https://rcsaclub.com/animate_uploads/Plane/recive_plane_pic.php"
-    files = {'file': ('processed_image.jpg', buffer.tobytes(), 'image/jpeg')}
-    try:
-        response = requests.post(php_url, files=files)
-        headers = {"User-Agent": "MyPythonClient/1.0"}
-        response = requests.post(php_url, files=files, headers=headers)
-        print(response.status_code, response.text)
-    except requests.RequestException as e:
-        return jsonify({"error": f"Failed to send file: {str(e)}"}), 500
 
-    # ตรวจสอบสถานะการส่ง
-    if response.status_code == 200:
-        return jsonify({"message": "File sent successfully", "php_response": response.text}), 200
-    else:
-        return jsonify({"error": "Failed to send file", "php_response": response.text}), 500
+    try:
+        # ส่งคำขอ POST ไปยัง PHP
+        response = requests.post(php_url, files=processed_image)
+        response.raise_for_status()  # เช็คสถานะการตอบกลับ
+
+        # แสดงผลการตอบกลับจาก PHP
+        print("Response:", response.json())
+    except requests.exceptions.RequestException as e:
+        print(f"Error: {e}")
+
+    # # แปลงภาพเป็น BytesIO เพื่อตอบกลับ
+    # _, buffer = cv2.imencode('.jpg', processed_image)
+
+    # # ส่งภาพไปยัง PHP server
+    # php_url = "https://rcsaclub.com/animate_uploads/Plane/recive_plane_pic.php"
+    # files = {'file': ('processed_image.jpg', buffer.tobytes(), 'image/jpeg')}
+    # try:
+    #     response = requests.post(php_url, files=files)
+    #     headers = {"User-Agent": "MyPythonClient/1.0"}
+    #     response = requests.post(php_url, files=files, headers=headers)
+    #     print(response.status_code, response.text)
+    # except requests.RequestException as e:
+    #     return jsonify({"error": f"Failed to send file: {str(e)}"}), 500
+
+    # # ตรวจสอบสถานะการส่ง
+    # if response.status_code == 200:
+    #     return jsonify({"message": "File sent successfully", "php_response": response.text}), 200
+    # else:
+    #     return jsonify({"error": "Failed to send file", "php_response": response.text}), 500
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
