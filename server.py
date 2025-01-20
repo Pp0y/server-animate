@@ -110,7 +110,7 @@ def projects():
     except requests.exceptions.RequestException as e:
         print(f"Error: {e}")
 
-    # # แปลงภาพเป็น BytesIO เพื่อตอบกลับ
+    # # แปลงภาพเป็น BytesIO เพื่อตอบกลับกลับกลับ
     # _, buffer = cv2.imencode('.jpg', processed_image)
 
     # # ส่งภาพไปยัง PHP server
