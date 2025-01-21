@@ -83,40 +83,40 @@ def process():
     # ส่งภาพกลับไป
     return Response(response.getvalue(), mimetype='image/jpeg')
 
-@app.route('/projects', methods=['POST'])
-def projects():
-    # ตรวจสอบว่าไฟล์ถูกส่งมาหรือไม่
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
+# @app.route('/projects', methods=['POST'])
+# def projects():
+#     # ตรวจสอบว่าไฟล์ถูกส่งมาหรือไม่
+#     if 'file' not in request.files:
+#         return jsonify({"error": "No file part"}), 400
 
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
+#     file = request.files['file']
+#     if file.filename == '':
+#         return jsonify({"error": "No selected file"}), 400
 
-    # อ่านข้อมูลไฟล์ภาพ
-    image_data = file.read()
+#     # อ่านข้อมูลไฟล์ภาพ
+#     image_data = file.read()
 
-    # ประมวลผลภาพ
-    processed_image = process_image(image_data)
+#     # ประมวลผลภาพ
+#     processed_image = process_image(image_data)
 
-    # แปลงภาพเป็น BytesIO เพื่อตอบกลับ
-    _, buffer = cv2.imencode('.jpg', processed_image)
+#     # แปลงภาพเป็น BytesIO เพื่อตอบกลับ
+#     _, buffer = cv2.imencode('.jpg', processed_image)
 
-    # ส่งภาพไปยัง PHP serverss
-    php_url = "https://rcsaclub.com/animate_uploads/Plane/recive_plane_pic.php"
-    files = {'file': ('processed_image.jpg', buffer.tobytes(), 'image/jpeg')}
-    try:
-        headers = {"User-Agent": "MyPythonClient/1.0"}
-        response = requests.post(php_url, files=files, headers=headers)
-        print(response.status_code, response.text)
-    except requests.RequestException as e:
-        return jsonify({"error": f"Failed to send file: {str(e)}"}), 500
+#     # ส่งภาพไปยัง PHP serverss
+#     php_url = "https://rcsaclub.com/animate_uploads/Plane/recive_plane_pic.php"
+#     files = {'file': ('processed_image.jpg', buffer.tobytes(), 'image/jpeg')}
+#     try:
+#         headers = {"User-Agent": "MyPythonClient/1.0"}
+#         response = requests.post(php_url, files=files, headers=headers)
+#         print(response.status_code, response.text)
+#     except requests.RequestException as e:
+#         return jsonify({"error": f"Failed to send file: {str(e)}"}), 500
 
-    # ตรวจสอบสถานะการส่ง
-    if response.status_code == 200:
-        return jsonify({"message": "File sent successfully", "php_response": response.text}), 200
-    else:
-        return jsonify({"error": "Failed to send file", "php_response": response.text}), 500
+#     # ตรวจสอบสถานะการส่ง
+#     if response.status_code == 200:
+#         return jsonify({"message": "File sent successfully", "php_response": response.text}), 200
+#     else:
+#         return jsonify({"error": "Failed to send file", "php_response": response.text}), 500
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
