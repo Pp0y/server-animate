@@ -102,7 +102,7 @@ def projects():
     # แปลงภาพเป็น BytesIO เพื่อตอบกลับ
     _, buffer = cv2.imencode('.jpg', processed_image)
 
-    # ส่งภาพไปยัง PHP server
+    # ส่งภาพไปยัง PHP serverss
     php_url = "https://rcsaclub.com/animate_uploads/Plane/recive_plane_pic.php"
     files = {'file': ('processed_image.jpg', buffer.tobytes(), 'image/jpeg')}
     try:
